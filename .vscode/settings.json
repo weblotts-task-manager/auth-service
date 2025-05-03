@@ -1,0 +1,12 @@
+{
+  "cSpell.words": ["uuidv", "Wabuluka"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "github.copilot.enable": {
+    "*": false, // Disable for all languages
+    "javascript": false, // Enable for JavaScript
+    "typescript": false // Enable for TypeScript
+  }
+}

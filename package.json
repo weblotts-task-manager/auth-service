@@ -18,12 +18,14 @@
     "bcryptjs": "^3.0.2",
     "concurrently": "^9.1.2",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.1",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.10",
+    "util": "^0.12.5",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
