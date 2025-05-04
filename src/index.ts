@@ -13,6 +13,15 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 
+app.use((req, res, next) => {
+  console.log("Incoming request:", {
+    method: req.method,
+    url: req.originalUrl,
+    headers: req.headers,
+    body: req.body,
+  });
+});
+
 const PORT = process.env.PORT || 5002;
 
 (async (port) => {
