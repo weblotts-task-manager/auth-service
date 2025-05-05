@@ -3,18 +3,21 @@ import { AppError } from "../errors/appError";
 import { logger } from "../utils/logger";
 
 export const errorMiddleware = (
-  err: Error | AppError,
+  err: Error | AppError | any,
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): any => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
-      status: "error",
-      message: err.message,
+      error: {
+        message: err.message,
+        statusCode: err.statusCode,
+      },
     });
   }
 
+  // Log unexpected errors
   logger.error(`Unexpected error: ${err.message}`, {
     error: err,
     stack: err.stack,
@@ -22,15 +25,19 @@ export const errorMiddleware = (
     method: req.method,
   });
 
+  // console.log(err);
+
+  // Don't leak error details in production
   const message =
     process.env.NODE_ENV === "development"
       ? err.message
       : "An unexpected error occurred";
-
-  res.status(500).json({
+  const statusCode = err.statusCode || 500;
+  // const message = err.message;
+  res.status(statusCode).json({
     error: {
-      message: message || "Internal Server Error",
-      statusCode: 500,
+      message,
+      statusCode,
     },
   });
 };

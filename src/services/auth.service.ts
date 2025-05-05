@@ -1,4 +1,8 @@
-import { ForbiddenError, UnauthorizedError } from "../errors/appError";
+import {
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../errors/appError";
 import { Token } from "../models/token.model";
 import { User } from "../models/user.model";
 import {
@@ -14,8 +18,7 @@ export const registerUser = async (
 ) => {
   // check if user exist
   if (await User.findOne({ email })) {
-    // throw new Error("Email already in use");
-    throw new ForbiddenError("Email already in use");
+    throw new ConflictError("Email already in use");
   }
   //create user
   const user = await User.create({ email, password, name });
@@ -37,12 +40,10 @@ export const loginUser = async (
 ) => {
   const user = await User.findOne({ email }).select("+password");
   if (!user || !(await user.comparePassword(password))) {
-    // throw new Error("Invalid email or password");
-    throw new UnauthorizedError("Invalid email or password...");
+    throw new UnauthorizedError("Invalid email or password");
   }
 
   if (!user.isVerified) {
-    // throw new Error("Please verify your email first");
     throw new UnauthorizedError("Please verify your email first");
   }
 
@@ -76,13 +77,28 @@ export const refreshToken = async (refreshToken: string) => {
     token: refreshToken,
   });
   if (!storedToken) {
-    // throw new Error("Invalid refresh token");
     throw new UnauthorizedError("Invalid refresh token");
   }
   const user = await User.findById(payload.userId);
-  const newAccessToken = generateAccessToken(payload);
+  if (!user) {
+    throw new UnauthorizedError("User not found");
+  }
+  const newAccessToken = generateAccessToken({
+    userId: user._id as string,
+    email: user.email,
+  });
+  const newRefreshToken = generateRefreshToken({
+    userId: user._id as string,
+    email: user.email,
+  });
+
+  storedToken.token = newRefreshToken;
+  await storedToken.save();
+
+  return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 };
 
 export const logout = async (refreshToken: string) => {
-  await Token.findOneAndDelete({ token: refreshToken });
+  if (!(await Token.findOneAndDelete({ token: refreshToken })))
+    throw new NotFoundError("Refresh token not found");
 };

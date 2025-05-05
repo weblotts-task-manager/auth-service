@@ -53,7 +53,7 @@ const tokenSchema: Schema = new Schema<IToken>(
   }
 );
 // Index for faster queries by the user and token
-tokenSchema.index({ userId: 1, token: 1 });
+tokenSchema.index({ token: 1 }, { unique: true });
 
 /**
  * Static method to create a new token
