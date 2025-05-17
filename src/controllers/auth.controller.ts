@@ -63,6 +63,7 @@ export const logoutUser = async (
     next(e);
   }
 };
+
 export const tokenRefresh = async (
   req: Request,
   res: Response,

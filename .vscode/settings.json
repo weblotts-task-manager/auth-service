@@ -8,5 +8,6 @@
     "*": false, // Disable for all languages
     "javascript": false, // Enable for JavaScript
     "typescript": false // Enable for TypeScript
-  }
+  },
+  "editor.fontSize": 14
 }
