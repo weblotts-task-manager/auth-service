@@ -1,4 +1,5 @@
 import {
+  BadRequestError,
   ConflictError,
   NotFoundError,
   UnauthorizedError,
@@ -10,27 +11,43 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../utils/jwt";
+import { sendVerificationEmail } from "./email.service";
 
 export const registerUser = async (
   email: string,
   password: string,
   name: string
 ) => {
-  // check if user exist
-  if (await User.findOne({ email })) {
-    throw new ConflictError("Email already in use");
+  try {
+    // check if user exist
+    if (await User.findOne({ email })) {
+      throw new ConflictError("Email already in use");
+    }
+    //create user
+    // generate verification code
+    const verificationCode = generateAccessToken({
+      // userId: user._id as string,
+      email,
+    });
+    const user = await User.create({
+      email,
+      password,
+      name,
+      verificationToken: verificationCode,
+    });
+
+    const data = {
+      email: user.email,
+      token: user.verificationToken,
+      name: user.name,
+    };
+
+    await sendVerificationEmail(data);
+
+    return user;
+  } catch (error: any) {
+    throw new BadRequestError(error.message);
   }
-  //create user
-  const user = await User.create({ email, password, name });
-
-  // generate verification code
-  const verificationCode = generateAccessToken({
-    userId: user._id as string,
-    email: user.email,
-  });
-  // await EmailService.sendVerificationEmail(user.email, verificationToken);
-
-  return user;
 };
 
 export const loginUser = async (
@@ -101,4 +118,12 @@ export const refreshToken = async (refreshToken: string) => {
 export const logout = async (refreshToken: string) => {
   if (!(await Token.findOneAndDelete({ token: refreshToken })))
     throw new NotFoundError("Refresh token not found");
+};
+
+export const verifyEmailService = async (token: string) => {
+  try {
+    console.log(`Token to be verified: ${token}`);
+  } catch (error) {
+    throw new BadRequestError("Token not valid");
+  }
 };

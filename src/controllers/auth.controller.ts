@@ -6,6 +6,7 @@ import {
   logout,
   refreshToken,
   registerUser,
+  verifyEmailService,
 } from "../services/auth.service";
 import { logger } from "../utils/logger";
 
@@ -17,8 +18,12 @@ export const register = async (
   try {
     const { email, password, name } = req.body;
     const userObj = await registerUser(email, password, name);
+
     const user = toUserDTO(userObj);
-    res.status(201).json({ message: "User registered successfully", user });
+    res.status(201).json({
+      message: "User registered successfully, check your email to continue.",
+      user,
+    });
   } catch (e: any) {
     logger.error(`Registration error: ${e}`);
     next(e);
@@ -88,4 +93,13 @@ export const tokenRefresh = async (
     logger.error("Refresh Token error: ", e);
     next(e);
   }
+};
+
+export const verifyEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.query.token as string;
+  await verifyEmailService(token);
 };

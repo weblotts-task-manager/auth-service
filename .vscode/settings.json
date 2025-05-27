@@ -1,5 +1,5 @@
 {
-  "cSpell.words": ["uuidv", "Wabuluka"],
+  "cSpell.words": ["uuidv", "Wabuluka", "weblotts"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "explicit"

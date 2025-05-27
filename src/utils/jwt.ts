@@ -7,7 +7,7 @@ import {
 const secret = process.env.JWT_SECRET || "default";
 
 interface TokenPayload {
-  userId: string;
+  userId?: string;
   email: string;
 }
 

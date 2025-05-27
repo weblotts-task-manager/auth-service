@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { verifyToken } from "../utils/jwt";
+import { verifyAccessToken } from "../utils/jwt";
 
 export const validateToken = (
   req: Request,
@@ -9,7 +9,7 @@ export const validateToken = (
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ message: "Access Denied" });
   try {
-    const decoded = verifyToken(token) as string;
+    const decoded = verifyAccessToken(token);
     (req as any).user = decoded;
     next();
   } catch {
