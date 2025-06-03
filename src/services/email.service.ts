@@ -1,16 +1,28 @@
 import { FRONTEND_URL } from "../config/env";
 import { transporter } from "../config/mailer";
 import { logger } from "../utils/logger";
+import { UpdateUser } from "./user.service";
 
 export const sendVerificationEmail = async (user: any) => {
   try {
-    const verificationLink = `${FRONTEND_URL}/verification-email?token=${user.token}`;
+    const minutesToAdd = 30;
+    const now = new Date();
+    const futureDate = new Date(now.getTime() + minutesToAdd * 60000);
+
+    const update = {
+      verificationToken: user.verificationToken,
+      verificationTokenExpires: futureDate,
+    };
+
+    await UpdateUser(user._id, update);
+
+    const verificationLink = `${FRONTEND_URL}/verify-email?token=${user.verificationToken}`;
+
     await transporter.sendMail({
       from: '"Project Manager" <noreply@weblotts.com>',
       to: user.email,
       subject: "Verify your email",
-      html: `
-      <html>
+      html: `<html>
         <head>
           <meta http-equiv="content-type" content="text/html; charset=utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0;">
@@ -80,7 +92,7 @@ export const sendVerificationEmail = async (user: any) => {
                 margin-top: 30px;
               }
             }
-            
+
             /* Rounded corners */
             @media all and (min-width: 560px) {
               .container {
@@ -132,17 +144,17 @@ export const sendVerificationEmail = async (user: any) => {
                   </tr>
                   <tr>
                     <td align="center" valign="top" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%; font-size: 17px; font-weight: 400; line-height: 160%;
-              padding-top: 25px; 
+              padding-top: 25px;
               color: #000000;
               font-family: sans-serif;" class="paragraph">
-                      Hi Davies Wabuluka,<br> In order to start using your new account, you need to confirm your email address.
+                      Hi ${user.name},<br> In order to start using your new account, you need to confirm your email address.
                     </td>
                   </tr>
                   <tr>
                     <td align="center" valign="top" style="border-collapse: collapse; border-spacing: 0; margin: 0; padding: 0; padding-left: 6.25%; padding-right: 6.25%; width: 87.5%;
               padding-top: 25px;
               padding-bottom: 5px;" class="button">
-                      <a href="https://github.com/konsav/email-templates/" target="_blank" style="text-decoration: underline;">
+                      <a href="https://github.com/konsav/email-templates/" target="_blank" style="text-decoration: none;">
                         <table border="0" cellpadding="0" cellspacing="0" align="center" style="max-width: 240px; min-width: 120px; border-collapse: collapse; border-spacing: 0; padding: 0;">
                           <tr>
                             <td align="center" valign="middle" style="padding: 12px 24px; margin: 0; text-decoration: underline; border-collapse: collapse; border-spacing: 0; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px;"
@@ -192,20 +204,9 @@ export const sendVerificationEmail = async (user: any) => {
         </body>
       </html>`,
     });
-    logger.info(`Email sent to ${user.email}`);
+    logger.info(`Email sent to ${user.name}`);
+    return;
   } catch (error) {
     logger.error("Unable to send verification email", error);
   }
 };
-
-// export const mailSender = async () => {
-//   const mailOptions = {
-//     from: '"Your Name" <noreply@weblotts.com>', // custom sender name
-//     to: "dwabuluka@gmail.com",
-//     subject: "Test Mail",
-//     text: "Just testing mailer",
-//   };
-
-//   const info = await transporter1.sendMail(mailOptions);
-//   console.log("Email sent:", info.messageId);
-// };

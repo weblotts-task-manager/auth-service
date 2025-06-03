@@ -3,7 +3,9 @@ export const JWT_SECRET = "default";
 export const JWT_EXPIRES_IN = "1h";
 export const REFRESH_TOKEN_SECRET = "defaultdefault";
 export const REFRESH_TOKEN_EXPIRES_IN = "30m";
+export const VERIFICATION_TOKEN_EXPIRES_IN = 30;
 export const NODE_ENV = "development";
+
 // mailing
 export const SMTP_HOST = "weblotts.com";
 export const SMTP_PORT = 587;

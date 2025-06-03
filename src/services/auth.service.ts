@@ -25,25 +25,25 @@ export const registerUser = async (
     }
     //create user
     // generate verification code
-    const verificationCode = generateAccessToken({
-      // userId: user._id as string,
-      email,
-    });
+
     const user = await User.create({
       email,
       password,
       name,
-      verificationToken: verificationCode,
     });
 
+    const verificationCode = await generateAccessToken({
+      userId: user._id as string,
+      email,
+    });
     const data = {
+      _id: user._id,
       email: user.email,
-      token: user.verificationToken,
+      verificationToken: verificationCode,
       name: user.name,
     };
 
     await sendVerificationEmail(data);
-
     return user;
   } catch (error: any) {
     throw new BadRequestError(error.message);
@@ -115,15 +115,23 @@ export const refreshToken = async (refreshToken: string) => {
   return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 };
 
-export const logout = async (refreshToken: string) => {
-  if (!(await Token.findOneAndDelete({ token: refreshToken })))
-    throw new NotFoundError("Refresh token not found");
-};
-
 export const verifyEmailService = async (token: string) => {
   try {
-    console.log(`Token to be verified: ${token}`);
+    if (!token) throw new BadRequestError("Invalid verification link");
+    const user = await User.findOne({ verificationToken: token });
+    if (!user)
+      throw new BadRequestError("Invalid or expired verification token.");
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+    return user;
   } catch (error) {
     throw new BadRequestError("Token not valid");
   }
+};
+
+export const logout = async (refreshToken: string) => {
+  if (!(await Token.findOneAndDelete({ token: refreshToken })))
+    throw new NotFoundError("Refresh token not found");
 };

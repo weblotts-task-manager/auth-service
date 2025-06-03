@@ -13,6 +13,6 @@ authRoutes.post("/register", register);
 authRoutes.post("/login", login);
 authRoutes.post("/logout", logoutUser);
 authRoutes.post("/refresh-token", tokenRefresh);
-authRoutes.get("/verification-email", verifyEmail);
+authRoutes.get("/verify-email", verifyEmail);
 
 export default authRoutes;

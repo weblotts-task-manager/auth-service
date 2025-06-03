@@ -12,16 +12,3 @@ export const transporter = nodemailer.createTransport({
     pass: SMTP_PASS,
   },
 } as SMTPTransport.Options);
-
-export const transporter1 = nodemailer.createTransport({
-  host: "weblotts.com", // e.g., 'smtp.example.com'
-  port: 587, // or 465 for SSL
-  secure: false, // true for 465, false for other ports
-  tls: {
-    rejectUnauthorized: false,
-  },
-  auth: {
-    user: "noreply@weblotts.com",
-    pass: "12345",
-  },
-});

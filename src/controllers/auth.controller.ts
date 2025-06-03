@@ -61,7 +61,6 @@ export const logoutUser = async (
     if (!refreshToken) throw new UnauthorizedError("No refresh token provided");
     await logout(refreshToken);
     res.clearCookie("refreshToken");
-    logger.error(`Login error: ${res}`);
     res.json({ message: "Logged out successfully" });
   } catch (e: any) {
     logger.error("Token error: ", e);
@@ -100,6 +99,12 @@ export const verifyEmail = async (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.query.token as string;
-  await verifyEmailService(token);
+  try {
+    const token = req.query.token as string;
+    await verifyEmailService(token);
+    res.status(200).json({ message: "Email verified successfully!" });
+  } catch (e: any) {
+    logger.error("Email not verified: ", e);
+    next(e);
+  }
 };
